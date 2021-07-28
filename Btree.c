@@ -248,22 +248,6 @@ void Btree_Insert( Btree* this, int key )
          insert_node( s, key );
       }
       else insert_node( r, key );
-#if 0 
-      if( this->root->cnt == (M_ORDER-1) )
-      {
-         Node* old_root = this->root;
-
-         this->root = new_node();
-         assert( this->root );
-
-         //++this->len;
-
-         this->root->children[ 0 ] = old_root;
-         this->root->leaf = false;
-         this->root = split_node( this->root, 0 );
-      }
-      this->root = insert_node( this->root, key );
-#endif  
    }
 
    assert( this->root != NULL );
