@@ -45,10 +45,10 @@ typedef struct
  */
 typedef struct Node
 {
-   int keys[ M_ORDER ]; ///< Arreglo de llaves
+   int keys[ (2*M_ORDER-1) ]; ///< Arreglo de llaves
    // dejamos un elemento extra que funcionará como auxiliar en la inserción ([DESHPANDExx])
 
-   struct Node* children[ M_ORDER + 1 ]; ///< Arreglo de hijos 
+   struct Node* children[ (2*M_ORDER) ]; ///< Arreglo de hijos 
    // siempre hay un hijo más que llaves
    
    size_t cnt; ///< Número de elementos actualmente en el nodo.

@@ -28,10 +28,10 @@ static Node* new_node()
       n->cnt = 0;
       n->leaf = true;
 
-      for( size_t i = 0; i < M_ORDER; ++i ) n->keys[ i ] = EMPTY_CELL;
+      for( size_t i = 0; i < (2*M_ORDER-1); ++i ) n->keys[ i ] = EMPTY_CELL;
       // en este ejemplo no existen llaves con el valor EMPTY_CELL
 
-      for( size_t i = 0; i < M_ORDER + 1; ++i ) n->children[ i ] = NULL;
+      for( size_t i = 0; i < (2*M_ORDER); ++i ) n->children[ i ] = NULL;
    }
 
    return n;
@@ -54,6 +54,7 @@ static void delete_all( Node* parent )
    if( !parent->leaf )
    {
       for( size_t i = 0; parent->children[ i ] != NULL; ++i )
+      //                 ¿cambiar por .cnt?
       {
          delete_all( parent->children[ i ] );
       }
@@ -101,16 +102,15 @@ static Node* split_node( Node* parent, size_t index )
    // el nuevo nodo a la derecha tiene el mismo nivel que el de la izquierda
 
    
-   right->cnt = MIN_KEYS;
+   right->cnt = (M_ORDER-1);
    // el nuevo nodo a la derecha debe contener el número mínimo de llaves
 
    // distribuímos las llaves (left -> right ):
-   for( size_t j = 0; j < MIN_KEYS; ++j )
+   for( size_t j = 0; j < (M_ORDER-1); ++j )
    {
-//      right->keys[ j ] = left->keys[ j + MIN_KEYS + 1 ];
-      right->keys[ j ] = left->keys[ j + MIN_KEYS ];
+      right->keys[ j ] = left->keys[ j + M_ORDER ];
 
-      left->keys[ j + MIN_KEYS ] = EMPTY_CELL;
+      left->keys[ j + M_ORDER ] = EMPTY_CELL;
       // para depuración, NO ES NECESARIA
    }
 
@@ -118,29 +118,16 @@ static Node* split_node( Node* parent, size_t index )
    // distribuímos los enlaces a los hijos:
    if( left->leaf == false )
    {
-      for( size_t j = 0; j < M_ORDER_MIN; ++j )
+      for( size_t j = 0; j < M_ORDER; ++j )
       {
-         right->children[ j ] = left->children[ j + M_ORDER_MIN ];
+         right->children[ j ] = left->children[ j + M_ORDER ];
 
-         left->children[ j + M_ORDER_MIN ] = NULL;
+         left->children[ j + M_ORDER ] = NULL;
          // para depuración, NO ES NECESARIA
       }
    }
-#if 0 
-   // distribuímos los enlaces a los hijos:
-   if( left->leaf == false )
-   {
-      for( size_t j = 0; j < MIN_KEYS; ++j )
-      {
-         right->children[ j ] = left->children[ j + MIN_KEYS + 1 ];
 
-         left->children[ j + MIN_KEYS + 1 ] = NULL;
-         // para depuración, NO ES NECESARIA
-      }
-   }
-#endif  
-
-   left->cnt = MIN_KEYS;
+   left->cnt = (M_ORDER-1);
    // el elemento más a la derecha se va a subir al nodo padre
 
    // hacemos lugar en el nodo padre para el nuevo enlace:
@@ -166,10 +153,10 @@ static Node* split_node( Node* parent, size_t index )
 
    DBG_PRINT( "-- split_node: Inserting the median=%d into a non leaf node\n", left->keys[ MIN_KEYS ] );
 
-   parent->keys[ index ] = left->keys[ MIN_KEYS ];
+   parent->keys[ index ] = left->keys[ (M_ORDER-1) ];
    // insertamos la mediana (es decir, el valor promocionado desde el nodo hijo izquierdo)
 
-   left->keys[ MIN_KEYS ] = EMPTY_CELL;
+   left->keys[ (M_ORDER-1) ] = EMPTY_CELL;
    // para depuración, NO ES NECESARIA
 
    ++parent->cnt;
@@ -213,7 +200,7 @@ static Node* insert_node( Node* node, int key )
 
       //(lee del disco 'node.children[index])
 
-      if( node->children[ index ]->cnt == MAX_KEYS )
+      if( node->children[ index ]->cnt == (2*M_ORDER-1) )
       {
          node->leaf = false;
          // el nodo deja de ser hoja
@@ -243,9 +230,26 @@ void Btree_Insert( Btree* this, int key )
 
       this->root->keys[ 0 ] = key;
       this->root->cnt = 1;
-   } else
+   } 
+   else
    {
-      if( this->root->cnt == MAX_KEYS )
+      Node* r = this->root;
+
+      if( r->cnt == (2*M_ORDER-1) )
+      {
+         Node* s = new_node();
+         assert( s );
+         
+         this->root = s;
+         s->leaf = false;
+         s->cnt = 0;
+         s->children[ 0 ] = r;
+         split_node( s, 0 );
+         insert_node( s, key );
+      }
+      else insert_node( r, key );
+#if 0 
+      if( this->root->cnt == (M_ORDER-1) )
       {
          Node* old_root = this->root;
 
@@ -259,6 +263,7 @@ void Btree_Insert( Btree* this, int key )
          this->root = split_node( this->root, 0 );
       }
       this->root = insert_node( this->root, key );
+#endif  
    }
 
    assert( this->root != NULL );
@@ -275,7 +280,7 @@ static void traverse_node( Node* node, void (*visit)(int key) )
       }
    } else
    {
-      for( size_t i = 0; i < node->cnt; ++i )
+      for( size_t i = 0; i < node->cnt+1; ++i )
       {
          traverse_node( node->children[ i ], visit );
          // desciende en el árbol hasta encontrar una hoja

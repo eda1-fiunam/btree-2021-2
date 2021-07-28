@@ -38,15 +38,21 @@
 #define DBG_PRINT( ... ) ;
 #endif  
 
+
+#define M_ORDER     2               ///< Número mínimo de hijos. [CORMEN09] lo llama |t|.
+// el número máximo de hijos siempre será par, y el de llaves, impar.
+
+#define M_ORDER_MAX (2*M_ORDER)
+#define MAX_KEYS    (2*M_ORDER-1)
+#define MIN_KEYS    (M_ORDER-1)
+
+#if 0 
 #define M_ORDER 5 ///< Orden del árbol (máximo número de hijos por nodo)
-
-#define M_ORDER_MIN ( (int)( (M_ORDER) / 2 + ( (M_ORDER) % 2 !=  0 ) ) ) ///< M_ORDER_MIN = ceil( M_ORDER / 2 )
-
 #define MAX_KEYS ( M_ORDER - 1 ) ///< Número máximo de LLAVES en el nodo
-
 //#define MIN_KEYS ( M_ORDER_MIN - 1 ) ///< Número mínimo de LLAVES en el nodo
 #define MIN_KEYS ( MAX_KEYS / 2 ) ///< Número mínimo de LLAVES en el nodo
 //#define MAX_CHILDREN (MAX_KEYS)
+#endif  
 
 #define EMPTY_CELL -1
 

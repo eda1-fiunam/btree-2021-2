@@ -34,21 +34,17 @@ void print( int key )
 
 int main()
 {
-   DBG_PRINT( 
-         "M_ORDER=     %d\n" 
-         "M_ORDER_MIN= %d\n"
-         "MAX_KEYS=    %d\n"
-         "MIN_KEYS=    %d\n",
-         M_ORDER, M_ORDER_MIN, MAX_KEYS, MIN_KEYS );
+   DBG_PRINT( "M_ORDER=%d\n", M_ORDER );
 
 #if 1 
    Btree* bt = Btree_New();
    // el orden del árbol, M_ORDER, está definido en defs.h
 
-   int keys[13] = { 500,700,900,1100,600,650,1000,800,550,625,675,1200,1150};
+//   int keys[13] = { 500,700,900,1100,600,650,1000,800,550,625,675,1200,1150};
+   int keys[13] = { 500,400,300,1100,900,750,1000,800,550,625,675,1200,1150};
 
    printf( "Filling the tree:\n" );
-   for( size_t i = 0; i < 5; i++ ) {
+   for( size_t i = 0; i < 6; i++ ) {
       Btree_Insert( bt, keys[ i ] );
    }
 
