@@ -70,5 +70,6 @@ Node* Btree_Get_root( Btree* this );
 void Btree_Insert( Btree* this, int key );
 void Btree_Delete_all( Btree* this );
 bool Btree_Traverse( Btree* this, void (*visit)(int key) );
+int Btree_Find( Btree* this, int key );
 
 #endif   /* ----- #ifndef BTREE_INC  ----- */
