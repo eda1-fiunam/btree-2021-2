@@ -51,18 +51,6 @@ Btree* Btree_New()
 
 static void delete_all( Node* parent )
 {
-   if( !parent->leaf )
-   {
-      for( size_t i = 0; parent->children[ i ] != NULL; ++i )
-      //                 ¿cambiar por .cnt?
-      {
-         delete_all( parent->children[ i ] );
-      }
-   } 
-   free( parent );
-
-   parent = NULL;
-   // para depuración, NO ES NECESARIA
 }
 
 void Btree_Delete_all( Btree* this )
@@ -192,7 +180,8 @@ static Node* insert_node( Node* node, int key )
 
       //( escribe 'node' al disco)
 
-   } else // el nodo no es hoja:
+   } 
+   else // el nodo no es hoja:
    {
       DBG_PRINT( "--- insert_node: Not a leaf\n" );
 
@@ -256,25 +245,6 @@ void Btree_Insert( Btree* this, int key )
 
 static void traverse_node( Node* node, void (*visit)(int key) )
 {
-   if( node->leaf == true )
-   {
-      for( size_t i = 0; i < node->cnt; ++i )
-      {
-         visit( node->keys[ i ] );
-      }
-   } else
-   {
-      for( size_t i = 0; i < node->cnt+1; ++i )
-      {
-         traverse_node( node->children[ i ], visit );
-         // desciende en el árbol hasta encontrar una hoja
-
-         if( i < node->cnt )
-         {
-            visit( node->keys[ i ] );
-         }
-      }
-   }
 }
 
 bool Btree_Traverse( Btree* this, void (*visit)(int key) )
@@ -283,4 +253,12 @@ bool Btree_Traverse( Btree* this, void (*visit)(int key) )
 
    traverse_node( this->root, visit );
    return true;
+}
+
+static bool find_node( Node* node, int key )
+{
+}
+
+bool Btree_Find( Btree* this, int key )
+{
 }
